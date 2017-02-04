@@ -1,0 +1,40 @@
+{{define "internal"}}
+{{template "header" .}}
+<div class="alert alert-info" role="alert">
+    <h1 class="alert">Welcome! {{.Usr.Usrname}} </h1>
+    <hr>
+
+    <strong>Hello User: </strong>
+</div>
+<div class="jumbotron">
+    <div class="container">
+        what would you like to do today {{.Usr.Fnm}} {{.Usr.Lnm}} ?
+    </div>
+</div>
+	<div class="container">
+
+	<table style="width:100%">
+	<tr>
+    <th>Product Name</th>
+    <th>Quantity</th>
+    <th>Price</th>
+    <th>Image</th>    
+	</tr>	
+	{{with .Prd}}
+    {{range .}}<tr>
+        <td>{{.Pname}}</td> 
+        <td>{{.Quantity}}</td>
+        <td>{{.Price}}</td>  
+        <td><img src="/files/{{.Image}}" alt="HTML5 Icon" style="width:200px;height:200px;"></td>
+    {{end}}</tr>
+	{{end}}
+	</table>
+
+	
+	
+    </div> 
+<form action="/logout" method="post">
+    <button class="btn btn-warning" type="submit">Logout</button>
+</form>
+{{template "footer" .}}
+{{end}}

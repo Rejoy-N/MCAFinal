@@ -1,0 +1,48 @@
+{{define "addproduct"}}
+{{template "header" .}}
+<h1 class="alert alert-info">Add Product Form</h1>
+<div class="container-fluid">
+    <form  method="POST" action="/addproduct" enctype="multipart/form-data">
+        <label class="form-control-label" for="productName">Product Name</label>
+        {{with .Errors.pname}}
+        <div class="alert alert-danger">
+            {{.}}
+        </div>
+        {{end}}
+        <input class="form-control" type="text" id="productName" name="productName">
+        <label class="form-control-label" for="quantity">Quantity</label>
+        {{with .Errors.quantity}}
+        <div class="alert alert-danger">
+            {{.}}
+        </div>
+        {{end}}
+        <input class="form-control" type="text" id="quantity" name="quantity">
+        <label class="form-control-label" for="price">Price</label>
+        {{with .Errors.price}}
+        <div class="alert alert-danger">
+            {{.}}
+        </div>
+        {{end}}
+        <input class="form-control" type="text" id="price" name="price">
+		<div class = "jumbotron">
+			<h1 class = "test-center"> Upload Image of the Product</h1>
+		</div>	
+        <label class="form-control-label" for="productimage"></label>
+        {{with .Errors.image}}
+        <div class="alert alert-danger">
+            {{.}}
+        </div>
+        {{end}}		
+		
+		<input type="file" name="productimage" id = "productimage" multiple="multiple" class = "btn btn-danger">
+					
+        <input type="submit" name="submit" value="Submit" class = "btn btn-info">
+    </form>
+</div>
+<div class="container-fluid">
+<form action="/admin" method="post">
+    <button class="btn btn-warning" type="submit">Back to Admin</button>
+</form>
+</div>
+{{template "footer" .}}
+{{end}}
