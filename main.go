@@ -110,6 +110,8 @@ func examplePage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		Vd.Prd = Pr
+		
+		// fmt.Println(Vd)
 
 		render(w, "internal", Vd)
 
