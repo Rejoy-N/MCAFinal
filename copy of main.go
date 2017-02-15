@@ -8,15 +8,11 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"strconv"
-	"time"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/stripe/stripe-go"
-	// "github.com/stripe/stripe-go/currency"
-	"github.com/stripe/stripe-go/charge"
 )
 
 var cookieHandler = securecookie.New(
@@ -283,9 +279,8 @@ func addproduct(w http.ResponseWriter, r *http.Request) {
 
 func placeOrder(w http.ResponseWriter, r *http.Request) {
 	uuid := getUuid(r)
-	pubkey := "pk_test_75gzALA1yuRnl1y7qWdimlov"
 	if uuid != "" {
-		render(w, "placeorder", pubkey)
+		render(w, "placeorder", "hi")
 	} else {
 		setMsg(w, "message", "Your session has expired. Please login again!")
 		http.Redirect(w, r, "/", 302)
@@ -297,90 +292,17 @@ func payment(w http.ResponseWriter, r *http.Request) {
 	if uuid != "" {
 		stripe.Key = "sk_test_rmp1OSLAWeSj1cAbJ7CvG3Rl"
 		token := r.FormValue("stripeToken")
+		Orderdata := r.FormValue("Output")
+		fmt.Println(Orderdata)		
 		
-		var m = make(map[string]interface{})
-		
-		m["eladdress"] = r.FormValue("stripeEmail")
-		m["shaddressname"] = r.FormValue("stripeShippingName")
-		m["shaddressline"] = r.FormValue("stripeShippingAddressLine1")
-		m["shaddresszip"] = r.FormValue("stripeShippingAddressZip")
-		// m["shaddressstate"] = r.FormValue("stripeShippingAddressState")
-		m["shaddresscity"] = r.FormValue("stripeShippingAddressCity")
-		m["shaddresscountry"] = r.FormValue("stripeShippingAddressCountry")
-		
-		
-		// marshal data to json
-		j, err := json.Marshal(m)
-		if err != nil {
-			fmt.Println(err)
+		type Ordata struct {
+			Puid     string `json:"puid"`
+			Pname    string `json:"pname"`
+			Quantity string `json:"quantity"`
+			Price    string `json:"price"`
+			Image    string `json:"image"`
 		}
 		
-		/*
-		// unmarshal json data
-		var n []interface{}
-		err := json.Unmarshal(n, &j)
-		if err != nil {
-			fmt.Println(err)
-		}
-		*/		
-		
-		s := r.FormValue("totalprice")
-		totalamount, err := strconv.ParseUint(s, 10, 64)
-			if err != nil {
-				panic(err)
-		}
-		
-		// fmt.Println(Orderdata)		
-		// fmt.Println(eladdress)
-		// fmt.Println(shaddressname)
-		// fmt.Println(shaddressline)
-		// fmt.Println(shaddresszip)
-		// fmt.Println(shaddresscity)
-		// fmt.Println(shaddresscountry)
-		// fmt.Println(totalamount)
-		// fmt.Println(m)
-		
-		params := &stripe.ChargeParams{
-			Amount: totalamount,
-			Currency: "inr",
-			Desc: "Order Payment",
-		}
-		params.SetSource(token)
-
-		charge, err := charge.New(params)
-		if err != nil {
-			fmt.Println(err)
-		}
-		
-		// fmt.Println(charge)
-		// fmt.Println(charge.ID)
-		// fmt.Println(charge.Status)
-		
-		tmst := strconv.FormatInt(time.Now().Unix(), 10)
-		
-		fmt.Println(tmst)
-
-		O := &Order{
-			Ouid:     			Ouid(),
-			Userid:         	uuid,
-			Token:				r.FormValue("stripeToken"),
-			OrderDetail: 		r.FormValue("Output"),
-			ShipDetail:			string(j),
-			TotalAmount:        r.FormValue("totalprice"),
-			Chargeid:			charge.ID,
-			ChargeStatus:		charge.Status,
-			Timestamp:    		tmst,
-		}		
-		
-		fmt.Println(O)
-		
-		// fmt.Println(time.Unix(tmst, 0).Format("02.01.2006 15:04:05"))
-		
-		if charge.Status == "succeeded" {
-			a := saveOrderData(O) 
-			fmt.Println(a)
-		}
-				
 		fmt.Println(token)
 		render(w, "payment", token)
 	} else {

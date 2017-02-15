@@ -1,0 +1,112 @@
+{{define "placeorder"}}
+{{template "header" .}}
+
+<!-- <textarea id="Output"></textarea> -->
+<div class="container">
+	<div class="panel panel-success">
+			<div class="panel-heading"></div>
+				<div class="row">
+					<div class="col-md-2">Product Image</div>
+					<div class="col-md-2">Product Name</div>
+					<div class="col-md-2">Quantity</div>
+					<div class="col-md-2">Price</div>
+					<div class="col-md-2">Item Total</div>
+					<div class="col-md-2">Add Remove</div>
+				</div>
+					<div class="panel-body">
+							<div id="show-cart">
+							<!-- -->
+							</div>
+							<p><br/></p>
+							<form action="/payment" method="POST">
+							<input id="Output" type="hidden" name="Output">	
+							<input id="tot-count" type="hidden" name="totalcount">	
+							<input id="tot-price" type="hidden" name="totalprice">	
+								<script
+									src="https://checkout.stripe.com/checkout.js" class="stripe-button" 
+									data-key={{.}}
+									data-currency ="INR"
+									data-amount= ""
+									data-name="Payment Gateway"
+									data-description="Online Mobile Store"
+									data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+									data-locale="auto"
+									data-shipping-address="true">
+								</script>
+							</form>
+
+
+					</div>		
+					<div class="panel-footer"></div>
+	</div>
+</div>
+
+<form action="/logout" method="post">
+    <button class="btn btn-warning" type="submit">Logout</button>
+</form>
+
+<script>
+$('#Output').val(localStorage.getItem('shoppingCart'));
+
+function displayTable() {
+	var tableArray = JSON.parse(localStorage.getItem("shoppingCart"));
+	var tot_count = 0;
+	var tot_price = 0;
+	for (var j in tableArray) {
+		tableArray[j].total = (tableArray[j].count * tableArray[j].price).toFixed(2);
+		tot_count += tableArray[j].count;
+		tot_price += Number(tableArray[j].total);
+	}		
+	var output = "";
+	for (var i in tableArray) {
+		output += "<div class='row'>"
+						+"<div class='col-md-2'>"+"<img src='/files/"+tableArray[i].image+"' alt='HTML5 Icon' style='width:100px;height:100px;'>"+"</div>"
+						+"<div class='col-md-2'>"+tableArray[i].name+"</div>"
+						+"<div class='col-md-2'>"
+						+" <input class='item-count' type='number' min='1' data-name='"+tableArray[i].name+"' value='"+tableArray[i].count+"' style='width:50px;'></input>"
+						+"</div>"
+						+"<div class='col-md-2'>"			
+						+" x "+tableArray[i].price
+						+"</div>"
+						+"<div class='col-md-2'>"
+						+" = "+tableArray[i].total
+						+"</div>"
+						+"<div class='col-md-2'>"
+						+" <button class='plus-item' data-name='"+tableArray[i].name+"'>+</button>"		
+						+" <button class='subtract-item' data-name='"+tableArray[i].name+"'>-</button>"
+						+" <button class='delete-item' data-name='"+tableArray[i].name+"'>X</button>"
+						+"</div>"
+					+"</div>";	
+	}	
+	output += "<div class='row'>"
+						+"<div class='col-md-2'>"+""+"</div>"
+						+"<div class='col-md-2'>"+""+"</div>"
+						+"<div class='col-md-2'>"
+						+tot_count
+						+"</div>"
+						+"<div class='col-md-2'>"			
+						+""
+						+"</div>"
+						+"<div class='col-md-2'>"
+						+""+tot_price
+						+"</div>"
+						+"<div class='col-md-2'>"
+						+" "		
+						+" "
+						+" "
+						+"</div>"
+					+"</div>";	
+	
+	$("#show-cart").html(output);
+	$("#tot-count").val(tot_count);
+	$("#tot-price").val(tot_price * 100);
+
+}
+
+displayTable();
+
+
+</script>
+
+{{template "footer" .}}
+{{end}}

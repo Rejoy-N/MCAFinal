@@ -27,6 +27,10 @@
 							<div id="show-cart">
 							<!-- -->
 							</div>
+							<p><br/></p>
+							<form action="/placeorder" method="post">
+							<button class="btn btn-danger btn-sm" style="float:right;">Place Order</button>
+							</form>
 					</div>
 					<div class="panel-footer"></div>
 				</div>
@@ -84,7 +88,7 @@
 							</div>
 							<div class="panel-heading">&#8377; {{.Price}}
 								<input type="number" min="1" style="width:50px;margin-left:60px;"></input>
-								<button pid="{{.Puid}}" style="float:right;" class="btn btn-danger btn-sm add-to-cart" data-name="{{.Pname}}" data-price="{{.Price}}">AddtoCart</button>
+								<button style="float:right;" class="btn btn-danger btn-sm add-to-cart" data-pid="{{.Puid}}" data-image="{{.Image}}" data-name="{{.Pname}}" data-price="{{.Price}}">AddtoCart</button>
 							</div>
 						</div>
 					</div>
@@ -110,9 +114,11 @@
 
 $(".add-to-cart").click(function(event){
 	event.preventDefault();
+	var pid = $(this).attr("data-pid");
+	var image = $(this).attr("data-image");
 	var name = $(this).attr("data-name");
 	var price = Number($(this).attr("data-price"));	
-	shoppingCart.addItemToCart(name, price, 1);
+	shoppingCart.addItemToCart(pid, image, name, price, 1);
 	displayCart();
 });	
 
@@ -126,7 +132,7 @@ function displayCart() {
 	var output = "";
 	for (var i in cartArray) {
 		output += "<div class='row'>"
-						+"<div class='col-md-2'>"+cartArray[i].name+"</div>"
+						+"<div class='col-md-2'>"+"<img src='/files/"+cartArray[i].image+"' alt='HTML5 Icon' style='width:50px;height:50px;'>"+"</div>"
 						+"<div class='col-md-2'>"+cartArray[i].name+"</div>"
 						+"<div class='col-md-2'>"
 						+" <input class='item-count' type='number' min='1' data-name='"+cartArray[i].name+"' value='"+cartArray[i].count+"' style='width:50px;'></input>"
@@ -151,8 +157,10 @@ function displayCart() {
 
 $("#show-cart").on("click",".plus-item",function(event){
 	event.preventDefault();
+	var pid = $(this).attr("data-pid");
+	var image = $(this).attr("data-image");
 	var name = $(this).attr("data-name");
-	shoppingCart.addItemToCart(name, 0, 1);
+	shoppingCart.addItemToCart(pid, image, name, 0, 1);
 	displayCart();
 });	
 
