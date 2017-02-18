@@ -1,21 +1,56 @@
 {{define "admin"}}
 {{template "header" .}}
-<div class="alert alert-info" role="alert">
-    <h1 class="alert">Welcome!</h1>
-    <hr>
 
-    <strong>Hello User: {{.Username}}</strong>
+<div class="navbar navbar-inverse navrbar-fixed-top" >
+	<div class="container-fluid">
+		<div class = "navbar-header">
+			<a href="#" class="navbar-brand">137132696</a>
+		</div>
+		<ul class="nav navbar-nav">
+			<li><form action="/manageproduct" method="post"><button type="submit" class="btn btn-link navbar-btn navbar-link"><span class="glyphicon glyphicon-th-list"></span> Manage Products</button></form></li>
+			<li><a href="#" style="text-decoration:none;">View Orders</a></li>
+		</ul>
+		<ul class="nav navbar-nav navbar-right">
+		<li><button type="submit" class="btn btn-link navbar-btn navbar-link"><span class="glyphicon glyphicon-user"></span> Hi Admin!</button></li>							
+		<li><form action="/logout" method="post"><button type="submit" class="btn btn-link navbar-btn navbar-link"><span class="glyphicon glyphicon-log-out"></span> Log off</button></form></li>				
+		</ul>	
+	</div>
+</div>		
+
+<div class="container">
+	<div class="col-md-1"></div>
+	<div class="col-md-10">
+		<div class="panel panel-info">
+			<div class="panel-heading">Order Data</div>
+				<div class="panel-body">
+					<table style="width:100%">
+						<tr>
+							<th>OrderID</th>
+							<th>Order Amount</th>
+							<th>Timestamp</th>
+						</tr>		
+						{{ range . }}
+						<tr>
+							<td><a href="#">{{.ouid}}</a></td>
+							<td id="tot">&#8377; {{printf "%.2f" .chargedamount}}</td>
+							<td>{{.timestamp}}</td>
+						</tr>
+						{{end}}	
+					</table>
+				</div>
+				<div class="panel-footer"></div>
+		</div>		
+		</div>
+	<div class="col-md-1"></div>
 </div>
-<div class="jumbotron">
-    <div class="container">
-        what would you like to do today {{.Fname}} {{.Lname}} ?
-    </div>
-</div>
+
+
 <form action="/addproduct" method="get">
     <button class="btn btn-warning" type="submit">Add Product</button>
 </form>
-<form action="/logout" method="post">
-    <button class="btn btn-warning" type="submit">Logout</button>
-</form>
+
+<script>
+	$("#tot").val((Number(tot)/100).toFixed(2));
+</script>
 {{template "footer" .}}
 {{end}}

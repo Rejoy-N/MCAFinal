@@ -78,6 +78,20 @@ func getUserFromUuid(uuid string) *User {
 	return &User{Username: un, Fname: fn, Lname: ln, Email: em, Password: pass}
 }
 
+func getUserEmailFromUuid(uuid string) string {
+	var db, _ = sql.Open("sqlite3", "cache/users.sqlite3")
+	defer db.Close()
+	var em string
+	q, err := db.Query("select email from users where uuid = '" + uuid + "'")
+	if err != nil {
+		return em
+	}
+	for q.Next() {
+		q.Scan(&em)
+	}
+	return em
+}
+
 func encryptPass(password string) string {
 	pass := []byte(password)
 	hashpw, _ := bcrypt.GenerateFromPassword(pass, bcrypt.DefaultCost)

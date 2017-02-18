@@ -2,28 +2,41 @@
 {{template "header" .}}
 
 <!-- <textarea id="Output"></textarea> -->
+<div class="navbar navbar-light navrbar-fixed-top" style="background-color: #e3f2fd;">
+	<div class="container-fluid">
+		<div class = "navbar-header">
+			<a href="#" class="navbar-brand">137132696</a>
+		</div>	
+		<ul class="nav navbar-nav"></ul>
+		<ul class="nav navbar-nav navbar-right">
+		<li><form><button type="submit" class="btn btn-link navbar-btn navbar-link" onclick="goBack()"><span class="glyphicon glyphicon-hand-left"></span> Back</button></form></li>				
+		<li><form action="/logout" method="post"><button type="submit" class="btn btn-link navbar-btn navbar-link"><span class="glyphicon glyphicon-log-out"></span> Log off</button></form></li>	
+		</ul>
+		</div>
+	</div>
+</div>		
 <div class="container">
-	<div class="panel panel-success">
+		<div class="panel panel-info">
 			<div class="panel-heading"></div>
 				<div class="row">
-					<div class="col-md-2">Product Image</div>
-					<div class="col-md-2">Product Name</div>
-					<div class="col-md-2">Quantity</div>
-					<div class="col-md-2">Price</div>
-					<div class="col-md-2">Item Total</div>
-					<div class="col-md-2">Add Remove</div>
+					<div class="col-md-3"><b>Product Image</b></div>
+					<div class="col-md-3"><b>Product Name</b></div>
+					<div class="col-md-2"><b>Quantity</b></div>
+					<div class="col-md-2"><b>Price</b></div>
+					<div class="col-md-2"><b>Item Total</b></div>
 				</div>
 					<div class="panel-body">
 							<div id="show-cart">
 							<!-- -->
 							</div>
 							<p><br/></p>
+							<div style="float:right;">
 							<form action="/payment" method="POST">
 							<input id="Output" type="hidden" name="Output">	
 							<input id="tot-count" type="hidden" name="totalcount">	
 							<input id="tot-price" type="hidden" name="totalprice">	
 								<script
-									src="https://checkout.stripe.com/checkout.js" class="stripe-button" 
+									src="https://checkout.stripe.com/checkout.js" class="stripe-button" style="float:right;"
 									data-key={{.}}
 									data-currency ="INR"
 									data-amount= ""
@@ -34,16 +47,11 @@
 									data-shipping-address="true">
 								</script>
 							</form>
-
-
+							</div>
 					</div>		
 					<div class="panel-footer"></div>
-	</div>
+		</div>
 </div>
-
-<form action="/logout" method="post">
-    <button class="btn btn-warning" type="submit">Logout</button>
-</form>
 
 <script>
 $('#Output').val(localStorage.getItem('shoppingCart'));
@@ -55,47 +63,25 @@ function displayTable() {
 	for (var j in tableArray) {
 		tableArray[j].total = (tableArray[j].count * tableArray[j].price).toFixed(2);
 		tot_count += tableArray[j].count;
-		tot_price += Number(tableArray[j].total);
+		tot_price += (Number(tableArray[j].total));
 	}		
 	var output = "";
 	for (var i in tableArray) {
-		output += "<div class='row'>"
-						+"<div class='col-md-2'>"+"<img src='/files/"+tableArray[i].image+"' alt='HTML5 Icon' style='width:100px;height:100px;'>"+"</div>"
-						+"<div class='col-md-2'>"+tableArray[i].name+"</div>"
-						+"<div class='col-md-2'>"
-						+" <input class='item-count' type='number' min='1' data-name='"+tableArray[i].name+"' value='"+tableArray[i].count+"' style='width:50px;'></input>"
-						+"</div>"
-						+"<div class='col-md-2'>"			
-						+" x "+tableArray[i].price
-						+"</div>"
-						+"<div class='col-md-2'>"
-						+" = "+tableArray[i].total
-						+"</div>"
-						+"<div class='col-md-2'>"
-						+" <button class='plus-item' data-name='"+tableArray[i].name+"'>+</button>"		
-						+" <button class='subtract-item' data-name='"+tableArray[i].name+"'>-</button>"
-						+" <button class='delete-item' data-name='"+tableArray[i].name+"'>X</button>"
-						+"</div>"
+		output += "<div class='row' style='border-bottom: 1px solid #4588ba; margin-bottom:10px;'>"
+						+"<div class='col-md-3'>"+"<img src='/files/"+tableArray[i].image+"' alt='HTML5 Icon' style='width:100px;height:100px;'>"+"</div>"
+						+"<div class='col-md-3'>"+tableArray[i].name+"</div>"
+						+"<div class='col-md-2'>"+tableArray[i].count+"</div>"
+						+"<div class='col-md-2'>"+" &#8377; "+tableArray[i].price+"</div>"
+						+"<div class='col-md-2'>"+" &#8377; "+tableArray[i].total+"</div>"
 					+"</div>";	
 	}	
-	output += "<div class='row'>"
+	output += "<div class='row' style='border-bottom: 1px solid #4588ba; margin-bottom:10px;'>"
+						+"<div class='col-md-3'>"+""+"</div>"
+						+"<div class='col-md-3'>"+""+"</div>"
+						+"<div class='col-md-2'>"+"<b>"+tot_count+"</b></div>"
 						+"<div class='col-md-2'>"+""+"</div>"
-						+"<div class='col-md-2'>"+""+"</div>"
-						+"<div class='col-md-2'>"
-						+tot_count
-						+"</div>"
-						+"<div class='col-md-2'>"			
-						+""
-						+"</div>"
-						+"<div class='col-md-2'>"
-						+""+tot_price
-						+"</div>"
-						+"<div class='col-md-2'>"
-						+" "		
-						+" "
-						+" "
-						+"</div>"
-					+"</div>";	
+						+"<div class='col-md-2'>"+"<b>"+" &#8377; "+tot_price.toFixed(2)+"</b></div>"
+				+"</div>";		
 	
 	$("#show-cart").html(output);
 	$("#tot-count").val(tot_count);
@@ -105,6 +91,9 @@ function displayTable() {
 
 displayTable();
 
+function goBack() {
+    window.history.back();
+}
 
 </script>
 

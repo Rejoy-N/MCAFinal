@@ -1,6 +1,20 @@
 {{define "payment"}}
 {{template "header" .}}
 
+<div class="navbar navbar-light navrbar-fixed-top" style="background-color: #e3f2fd;">
+	<div class="container-fluid">
+		<div class = "navbar-header">
+			<a href="#" class="navbar-brand">137132696</a>
+		</div>	
+		<ul class="nav navbar-nav"></ul>
+		<ul class="nav navbar-nav navbar-right">
+		<li><form action="/example" method="post"><button type="submit" class="btn btn-link navbar-btn navbar-link"><span class="glyphicon glyphicon-home"></span> Home</button></form></li>				
+		<li><form action="/logout" method="post"><button type="submit" class="btn btn-link navbar-btn navbar-link"><span class="glyphicon glyphicon-log-out"></span> Log off</button></form></li>	
+		</ul>
+		</div>
+	</div>
+</div>	
+
 
 {{.}}	
 

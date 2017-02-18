@@ -25,7 +25,13 @@ textarea {
   padding-left: 100px;
 }
 
-
+.main{
+  display:table;
+}
+.center{
+  display:table-cell;
+  vertical-align:middle;
+}
 
 
 

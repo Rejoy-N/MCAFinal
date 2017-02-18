@@ -190,14 +190,40 @@ func signup(w http.ResponseWriter, r *http.Request) {
 
 func admin(w http.ResponseWriter, r *http.Request) {
 	uuid := getUuid(r)
-	u := getUserFromUuid(uuid)
+	// u := getUserFromUuid(uuid)
 	if uuid != "" {
-		render(w, "admin", u)
+		
+		orw, err := getOrders()
+		if err!=nil {
+			fmt.Println(err)
+		}
+		
+		var or ([]map[string]interface{})
+		
+		err = json.Unmarshal(orw, &or)
+		if err !=nil {
+			fmt.Println(err)
+		}
+		
+		// fmt.Println(or)
+		
+		render(w, "admin", or)
 	} else {
 		setMsg(w, "message", "Please login first!")
 		http.Redirect(w, r, "/", 302)
 	}
 }
+
+func manageproduct(w http.ResponseWriter, r *http.Request) {
+	uuid := getUuid(r)
+	// u := getUserFromUuid(uuid)
+	if uuid != "" {
+		render(w, "manageproduct", nil)
+	} else {
+		setMsg(w, "message", "Your session has expired. Please login again!")
+		http.Redirect(w, r, "/", 302)
+	}
+}	
 
 func addproduct(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -295,6 +321,8 @@ func placeOrder(w http.ResponseWriter, r *http.Request) {
 func payment(w http.ResponseWriter, r *http.Request) {
 	uuid := getUuid(r)
 	if uuid != "" {
+		emaddress := getUserEmailFromUuid(uuid)
+		
 		stripe.Key = "sk_test_rmp1OSLAWeSj1cAbJ7CvG3Rl"
 		token := r.FormValue("stripeToken")
 		
@@ -314,15 +342,7 @@ func payment(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		
-		/*
-		// unmarshal json data
-		var n []interface{}
-		err := json.Unmarshal(n, &j)
-		if err != nil {
-			fmt.Println(err)
-		}
-		*/		
+				
 		
 		s := r.FormValue("totalprice")
 		totalamount, err := strconv.ParseUint(s, 10, 64)
@@ -366,7 +386,8 @@ func payment(w http.ResponseWriter, r *http.Request) {
 			Token:				r.FormValue("stripeToken"),
 			OrderDetail: 		r.FormValue("Output"),
 			ShipDetail:			string(j),
-			TotalAmount:        r.FormValue("totalprice"),
+			TotalAmount:        r.FormValue("totalprice"), 
+			ChargedAmount :     charge.Amount,
 			Chargeid:			charge.ID,
 			ChargeStatus:		charge.Status,
 			Timestamp:    		tmst,
@@ -377,8 +398,14 @@ func payment(w http.ResponseWriter, r *http.Request) {
 		// fmt.Println(time.Unix(tmst, 0).Format("02.01.2006 15:04:05"))
 		
 		if charge.Status == "succeeded" {
-			a := saveOrderData(O) 
-			fmt.Println(a)
+			err := saveOrderData(O) 
+			if err != nil {
+				fmt.Println(err)
+			} 
+			orderEmail(r.FormValue("stripeEmail"))
+			if emaddress != r.FormValue("stripeEmail") {
+				orderEmail(emaddress)
+			} 
 		}
 				
 		fmt.Println(token)
@@ -407,6 +434,7 @@ func main() {
 	router.HandleFunc("/example", examplePage)
 	router.HandleFunc("/signup", signup).Methods("POST", "GET")
 	router.HandleFunc("/admin", admin)
+	router.HandleFunc("/manageproduct", manageproduct)
 	router.HandleFunc("/addproduct", addproduct).Methods("POST", "GET")
 	router.HandleFunc("/placeorder", placeOrder)
 	router.HandleFunc("/payment", payment)

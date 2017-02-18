@@ -1,27 +1,28 @@
 {{define "internal"}}
 {{template "header" .}}
 
-<div class="navbar navbar-inverse navrbar-fixed-top">
+<div class="navbar navbar-inverse navrbar-fixed-top" >
 	<div class="container-fluid">
 		<div class = "navbar-header">
 			<a href="#" class="navbar-brand">137132696</a>
 		</div>
 		<ul class="nav navbar-nav">
-		<li style="width:300px;left:10px;top:10px;"><input type="text" class="form-control" id="search"></li>	
-		<li style="top:10px;left:20px;"><button class="btn btn-primary" id="search_btn">Search</button></li> 
+		<!-- <li style="width:300px;left:10px;top:10px;"><input type="text" class="form-control" id="search"></li>	-->
+		<li style="width:300px;left:10px;top:10px;"><input type="text" class="form-control" id="myInput" onkeyup="myFunction()" placeholder="Search for mobile devices.." title="Type in a name">	
+		<li style="top:10px;left:20px;"><button type="submit" class="btn btn-link navbar-btn navbar-link"><span class="glyphicon glyphicon-search" ></span></button></li> 
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
-		<li><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-shopping-cart"></span>Cart<span class="badge">0</span></a>
+		<li><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-shopping-cart"></span>Cart <span id="count-cart" style="color:white;font-size:12;background-color:green;border-radius: 100px;"> 0</span></a>
 			<div class="dropdown-menu" style="width:800px;">
-				<div class="panel panel-success">
-					<div class="panel-heading"></div>
-						<div class="row">
-							<div class="col-md-2">Product Image</div>
-							<div class="col-md-2">Product Name</div>
-							<div class="col-md-2">Quantity</div>
-							<div class="col-md-2">Price</div>
-							<div class="col-md-2">Item Total</div>
-							<div class="col-md-2">Add Remove</div>
+				<div class="panel panel-info">
+					<div class="panel-heading" ></div>
+						<div class="row" >
+							<div class="col-md-2"><b>Product Image</b></div>
+							<div class="col-md-2"><b>Product Name</b></div>
+							<div class="col-md-2"><b>Quantity</b></div>
+							<div class="col-md-2"><b>Price</b></div>
+							<div class="col-md-2"><b>Item Total</b></div>
+							<div class="col-md-2"><b>Add Remove</b></div>
 						</div>
 					<div class="panel-body">
 							<div id="show-cart">
@@ -42,8 +43,9 @@
 				<li class="divider"></li>
 				<li><a href="#" style="text-decoration:none; color:blue;">Change Password</a></li>
 			</ul>
-		</li>		
-		<li><a href="#"><span class="glyphicon glyphicon-log-out"></span>Logout</a></li>
+		</li>	
+		<li><form action="/logout" method="post"><button type="submit" class="btn btn-link navbar-btn navbar-link"><span class="glyphicon glyphicon-log-out"></span> Log off</button></form></li>	
+		<!-- <li><form action="/logout" method="post"><button class="glyphicon glyphicon-log-out" type="submit">Logout</form></li> -->
 		</ul>
 	</div>
 </div>
@@ -61,7 +63,7 @@
     </div>
 </div> 
 -->
-<p><br/></p>
+
 <p><br/></p>
 <p><br/></p>
 <div class="container-fluid">
@@ -75,19 +77,22 @@
 		</div>	
 		-->
 		<div class="col-md-10">
+			<div id="show-alert">
+			<!-- -->
+			</div>
 			<div class="panel panel-info">
 				<div class="panel-heading">Products</div>
 				<div class="panel-body">
 					{{with .Prd}}
 					{{range .}}	
-					<div class="col-md-4">
-						<div class="panel panel-info">
-							<div class="panel-heading">{{.Pname}}</div>
+					<div class="col-md-4 a" >
+						<div class="panel panel-info b">
+							<div class="panel-heading c">{{.Pname}}</div>
 							<div class="panel-body">
 								<img src="/files/{{.Image}}" alt="HTML5 Icon" style="width:200px;height:200px;">
 							</div>
 							<div class="panel-heading">&#8377; {{.Price}}
-								<input type="number" min="1" style="width:50px;margin-left:60px;"></input>
+								<input type="number" min="1" style="width:50px;margin-left:60px;border:1px solid red; border-radius:4px;background-color:white;"></input>
 								<button style="float:right;" class="btn btn-danger btn-sm add-to-cart" data-pid="{{.Puid}}" data-image="{{.Image}}" data-name="{{.Pname}}" data-price="{{.Price}}">AddtoCart</button>
 							</div>
 						</div>
@@ -102,11 +107,6 @@
 	</div>	
 </div>
 
-<div class="container">	    
-<form action="/logout" method="post">
-    <button class="btn btn-warning" type="submit">Logout</button>
-</form>
-</div> 
 
 <script src="/initializr/js/shoppingCart.js"></script>
 
@@ -120,6 +120,7 @@ $(".add-to-cart").click(function(event){
 	var price = Number($(this).attr("data-price"));	
 	shoppingCart.addItemToCart(pid, image, name, price, 1);
 	displayCart();
+	showAlert();
 });	
 
 $("#clear-cart").click(function(event){
@@ -131,22 +132,22 @@ function displayCart() {
 	var cartArray = shoppingCart.listCart();
 	var output = "";
 	for (var i in cartArray) {
-		output += "<div class='row'>"
+		output += "<div class='row' style='border-bottom: 1px solid #4588ba; margin-bottom:10px;'>"
 						+"<div class='col-md-2'>"+"<img src='/files/"+cartArray[i].image+"' alt='HTML5 Icon' style='width:50px;height:50px;'>"+"</div>"
 						+"<div class='col-md-2'>"+cartArray[i].name+"</div>"
 						+"<div class='col-md-2'>"
-						+" <input class='item-count' type='number' min='1' data-name='"+cartArray[i].name+"' value='"+cartArray[i].count+"' style='width:50px;'></input>"
+						+" <input class='item-count' type='number' min='1' data-name='"+cartArray[i].name+"' value='"+cartArray[i].count+"' style='width:50px;border:1px solid red; border-radius:4px;background-color:white;' ></input>"
 						+"</div>"
 						+"<div class='col-md-2'>"			
-						+" x "+cartArray[i].price
+						+"&#8377; "+cartArray[i].price
 						+"</div>"
 						+"<div class='col-md-2'>"
-						+" = "+cartArray[i].total
+						+"&#8377; "+cartArray[i].total
 						+"</div>"
 						+"<div class='col-md-2'>"
-						+" <button class='plus-item' data-name='"+cartArray[i].name+"'>+</button>"		
-						+" <button class='subtract-item' data-name='"+cartArray[i].name+"'>-</button>"
-						+" <button class='delete-item' data-name='"+cartArray[i].name+"'>X</button>"
+						+" <button class='plus-item' data-name='"+cartArray[i].name+"' style='background-color:#4CAF50; border:none; color:white;font-size: 16px'>+</button>"		
+						+" <button class='subtract-item' data-name='"+cartArray[i].name+"' style='background-color:#f44336; border:none; color:white;font-size: 16px'>-</button>"
+						+" <button class='delete-item' data-name='"+cartArray[i].name+"' style='background-color:white; border:none; color:#f44336;font-size: 16px'><b>X</b></button>"
 						+"</div>"
 					+"</div>";	
 	}	
@@ -186,33 +187,49 @@ $("#show-cart").on("change",".item-count",function(event){
 	displayCart();
 });
 
+function showAlert() {
+	alert = "<div class='alert alert-success alert-dismissable'>"
+			+"<a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>"
+			+"Product has been added to the cart sucessfully!!"
+			+"</div>"
+	$("#show-alert").html(alert);
+}	
+
+function myFunction() {
+  var input, filter, panel;
+  input = document.getElementById("myInput");
+  filter = input.value.toUpperCase();
+  a = document.getElementsByClassName("a");
+  // console.log(a);
+  // Loop through all table rows, and hide those who don't match the search query
+  
+  if (a) {
+	for (i = 0; i < a.length; i++) {
+		b = a[i].getElementsByClassName("b");
+		// console.log(b);
+		if(b) {
+			for (j = 0; j < b.length; j++) {
+				c = b[j].getElementsByClassName("c");		
+				console.log(c);
+				if (c) {
+					for (k = 0; k < c.length; k++) {
+						d = c[k];
+						if (d.innerHTML.toUpperCase().indexOf(filter) > -1) {
+							a[i].style.display = "";
+						} else {
+							a[i].style.display = "none";
+						}
+					}
+				}
+			}
+		}
+	}
+  }
+ } 	
+
 </script>
 
 {{template "footer" .}}
 {{end}}
 
-<!--
-	<div class="container">
 
-	<table id="Prodlist" style="width:100%">
-	<tr>
-    <th>Image</th> 		
-    <th>Product Name</th>
-    <th>Quantity</th>
-    <th>Price</th>
-    <th></th>    
-	</tr>	
-	{{with .Prd}}
-    {{range .}}<tr>
-        <td><img src="/files/{{.Image}}" alt="HTML5 Icon" style="width:200px;height:200px;"></td>		
-        <td>{{.Pname}}</td> 
-        <td>{{.Quantity}}</td>
-        <td>{{.Price}}</td>  
-        <td>
-            <button type="button" />Add to Cart</button>
-        </td>
-    {{end}}</tr>
-	{{end}}
-	</table>
-	</div> 
--->	
