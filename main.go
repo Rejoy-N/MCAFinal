@@ -10,6 +10,7 @@ import (
 	"strings"
 	"strconv"
 	"time"
+	"log"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
@@ -218,7 +219,21 @@ func manageproduct(w http.ResponseWriter, r *http.Request) {
 	uuid := getUuid(r)
 	// u := getUserFromUuid(uuid)
 	if uuid != "" {
-		render(w, "manageproduct", nil)
+		pdata, err := getProduct()
+		if err != nil {
+			fmt.Println(err)
+		}
+		
+		var pr ([]map[string]interface{})
+
+		err = json.Unmarshal(pdata, &pr)
+		if err != nil {
+			fmt.Println(err)
+		}
+		
+		fmt.Println(pr)
+		
+		render(w, "manageproduct", pr)
 	} else {
 		setMsg(w, "message", "Your session has expired. Please login again!")
 		http.Redirect(w, r, "/", 302)
@@ -304,6 +319,27 @@ func addproduct(w http.ResponseWriter, r *http.Request) {
 
 		http.Redirect(w, r, "/addproduct", 302)
 
+	}
+}
+
+func vieworder(w http.ResponseWriter, r *http.Request) {
+	uuid := getUuid(r)
+	// u := getUserFromUuid(uuid)
+	if uuid != "" {
+		oid := r.FormValue("orderid")
+		fmt.Println(oid)
+		or, err := getOrderFromOuid(oid)
+		if err !=nil {
+			fmt.Println(err)
+		}
+
+		fmt.Println(or)
+		
+		render(w, "vieworder", or)
+		
+	} else {
+		setMsg(w, "message", "Your session has expired. Please login again!")
+		http.Redirect(w, r, "/", 302)
 	}
 }
 
@@ -402,14 +438,24 @@ func payment(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				fmt.Println(err)
 			} 
+			
 			orderEmail(r.FormValue("stripeEmail"))
 			if emaddress != r.FormValue("stripeEmail") {
 				orderEmail(emaddress)
 			} 
+			
+			// fmt.Println(O.Ouid)
+			or, err := getOrderFromOuid(O.Ouid)
+			if err !=nil {
+					fmt.Println(err)
+			}
+			
+			render(w, "payment", or)
+			
+		} else {
+			render(w, "payment", "Transaction Failed. Please Try Again!")
 		}
-				
-		fmt.Println(token)
-		render(w, "payment", token)
+		
 	} else {
 		setMsg(w, "message", "Your session has expired. Please login again!")
 		http.Redirect(w, r, "/", 302)
@@ -436,8 +482,12 @@ func main() {
 	router.HandleFunc("/admin", admin)
 	router.HandleFunc("/manageproduct", manageproduct)
 	router.HandleFunc("/addproduct", addproduct).Methods("POST", "GET")
+	router.HandleFunc("/vieworder", vieworder)
 	router.HandleFunc("/placeorder", placeOrder)
 	router.HandleFunc("/payment", payment)
 	http.Handle("/", router)
-	http.ListenAndServe(":8090", nil)
+	// http.ListenAndServe(":8090", nil)
+	go http.ListenAndServe(":8090", http.RedirectHandler("https://127.0.0.1:8091",301))
+	err := http.ListenAndServeTLS(":8091", "tls/cert.pem", "tls/key.pem", nil)
+	log.Fatal(err)
 }

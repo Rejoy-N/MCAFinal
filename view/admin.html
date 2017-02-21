@@ -8,7 +8,6 @@
 		</div>
 		<ul class="nav navbar-nav">
 			<li><form action="/manageproduct" method="post"><button type="submit" class="btn btn-link navbar-btn navbar-link"><span class="glyphicon glyphicon-th-list"></span> Manage Products</button></form></li>
-			<li><a href="#" style="text-decoration:none;">View Orders</a></li>
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
 		<li><button type="submit" class="btn btn-link navbar-btn navbar-link"><span class="glyphicon glyphicon-user"></span> Hi Admin!</button></li>							
@@ -24,15 +23,16 @@
 			<div class="panel-heading">Order Data</div>
 				<div class="panel-body">
 					<table style="width:100%">
-						<tr>
+						<tr style="border-bottom: 1px solid #ddd;">
 							<th>OrderID</th>
 							<th>Order Amount</th>
 							<th>Timestamp</th>
 						</tr>		
 						{{ range . }}
-						<tr>
-							<td><a href="#">{{.ouid}}</a></td>
-							<td id="tot">&#8377; {{printf "%.2f" .chargedamount}}</td>
+						<tr style="border-bottom: 1px solid #ddd;">
+							<!-- <td><a href="#">{{.ouid}}</a></td> -->
+							<td><form action="/vieworder" method="post"><button class="btn btn-link" name="orderid" value="{{.ouid}}" style="padding-top:20px;">{{.ouid}}</button></form></td>
+							<td >&#8377; {{printf "%.2f" .chargedamount}}</td>
 							<td>{{.timestamp}}</td>
 						</tr>
 						{{end}}	
@@ -45,12 +45,5 @@
 </div>
 
 
-<form action="/addproduct" method="get">
-    <button class="btn btn-warning" type="submit">Add Product</button>
-</form>
-
-<script>
-	$("#tot").val((Number(tot)/100).toFixed(2));
-</script>
 {{template "footer" .}}
 {{end}}

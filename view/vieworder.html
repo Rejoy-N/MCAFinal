@@ -1,28 +1,26 @@
-{{define "payment"}}
+{{define "vieworder"}}
 {{template "header" .}}
-
-<!-- <div id="load_screen" style="position:absolute; width:100%; text-align:center;"><div id="loading"><image src="/files/ajax-loader.gif" border="0"></image> <br> Please wait while we process your request....</div></div> -->
 
 <div class="navbar navbar-light navrbar-fixed-top" style="background-color: #e3f2fd;">
 	<div class="container-fluid">
 		<div class = "navbar-header">
 			<a href="#" class="navbar-brand">137132696</a>
-		</div>	
-		<ul class="nav navbar-nav"></ul>
-		<ul class="nav navbar-nav navbar-right">
-		<li><form action="/example" method="post"><button type="submit" class="btn btn-link navbar-btn navbar-link"><span class="glyphicon glyphicon-home"></span> Home</button></form></li>				
-		<li><form action="/logout" method="post"><button type="submit" class="btn btn-link navbar-btn navbar-link"><span class="glyphicon glyphicon-log-out"></span> Log off</button></form></li>	
-		</ul>
 		</div>
+		<ul class="nav navbar-nav">
+			<li><form action="/admin" method="post"><button type="submit" class="btn btn-link navbar-btn navbar-link"><span class="glyphicon glyphicon-home"></span> Home</button></form></li>
+		</ul>
+		<ul class="nav navbar-nav navbar-right">
+		<li><button type="submit" class="btn btn-link navbar-btn navbar-link"><span class="glyphicon glyphicon-user"></span> Hi Admin!</button></li>							
+		<li><form action="/logout" method="post"><button type="submit" class="btn btn-link navbar-btn navbar-link"><span class="glyphicon glyphicon-log-out"></span> Log off</button></form></li>				
+		</ul>	
 	</div>
-</div>	
-
+</div>		
 
 <div class="container">
 	<div class="col-md-1"></div>
 	<div class="col-md-10">
 		<div class="panel panel-info">
-			<div class="panel-heading"><b>Order Invoice &#47; Payment Receipt</b></div>
+			<div class="panel-heading"><b>Order Details</b></div>
 				<div class="panel-body">
 					<div class="row">
 						<div class="col-md-3"><b>Order ID:</b></div>
@@ -104,20 +102,7 @@
 		</div>		
 		</div>
 	<div class="col-md-1"></div>
-</div>	
-
-
-<!--
-<script>
-		window.addEventListener("load", function() {
-				var load_screen = document.getElementByID("load_screen");
-				document.body.removeChild(load_screen);
-			}
-		);	
-</script>
--->
+</div>
 
 {{template "footer" .}}
 {{end}}
-
-

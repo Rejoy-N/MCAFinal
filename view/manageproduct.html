@@ -1,7 +1,63 @@
 {{define "manageproduct"}}
 {{template "header" .}}
 
-hi
+<div class="navbar navbar-inverse navrbar-fixed-top" >
+	<div class="container-fluid">
+		<div class = "navbar-header">
+			<a href="#" class="navbar-brand">137132696</a>
+		</div>
+		<ul class="nav navbar-nav">
+			<li><form action="/admin" method="post"><button type="submit" class="btn btn-link navbar-btn navbar-link"><span class="glyphicon glyphicon-th-list"></span> View Orders</button></form></li>
+		</ul>
+		<ul class="nav navbar-nav navbar-right">
+		<li><button type="submit" class="btn btn-link navbar-btn navbar-link"><span class="glyphicon glyphicon-user"></span> Hi Admin!</button></li>							
+		<li><form action="/logout" method="post"><button type="submit" class="btn btn-link navbar-btn navbar-link"><span class="glyphicon glyphicon-log-out"></span> Log off</button></form></li>				
+		</ul>	
+	</div>
+</div>
+<div class="container">
+	<div class="col-md-1"></div>
+	<div class="col-md-10">
+		<div class="panel panel-primary">
+			<div class="panel-heading"><b>Add Product</b></div>
+			<div class="panel-body">
+				<form action="/addproduct" method="get">
+					<h2 style="font-size:16"> Click on the button to add a new product</h2>
+					<button class="btn btn-warning" type="submit" style="float:right;">Add Product</button>
+				</form>
+			</div>
+			<div class="panel-footer"></div>
+		</div>	
+		<div class="panel panel-info">
+			<div class="panel-heading"><b>Manage Products</b></div>
+			<div class="panel-body">
+				<table style="width:100%;">
+						<tr style="border-bottom: 1px solid #ddd;">
+							<th>Product Image</th>
+							<th>Product Name</th>
+							<th>Product Quantity</th>
+							<th>Product Price</th>
+							<th>Delete / Update</th>
+						</tr>	
+						{{range .}}
+						
+						<tr style="border-bottom: 1px solid #ddd;">
+							<td><img src="/files/{{.image}}" style="width:100px;height:100px;"></td>
+							<td>{{.pname}}</td>
+							<td>{{.quantity}}</td>
+							<td>&#8377; {{.price}}</td>
+							<td><button class="btn btn-danger" style="border:none;margin-right:10px;">Delete</button><button class="btn btn-info" style="border:none;">Update</button></td>
+						</tr>
+						
+						{{end}}	
+						
+				</table>
+			</div>
+			<div class="panel-footer"></div>
+		</div>
+	</div>	
+	<div class="col-md-1"></div>
+</div>
 
 
 {{template "footer" .}}

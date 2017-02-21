@@ -82,60 +82,53 @@ func getOrders() ([]byte, error) {
 		return getord, nil
 }
 
-/*
-func getOrderFromOuid(ouid string) ([]byte, error) {
+func getOrderFromOuid(ouid string) (map[string]interface{}, error) {
 	var db, _ = sql.Open("sqlite3", "cache/users.sqlite3")
 	defer db.Close()
-	var ou, od, sh, ta, ts string
-	q, err := db.Query("select ouid, orderdetail, shipdetail, chargedamount, timestamp from orders where ouid = '" + ouid + "'")
-	if err != nil {
-		return err
-	}
-	for q.Next() {
-		q.Scan(&ou, &od, &sh, &ta, &ts)
-		getord := make(map[string]interface{})
-		getord["ouid"] = ou
-		getord["orderdetail"] = od
-		getord["shipdetail"] = sh
-		getord["chargedamount"] = ta
-		getord["timestamp"] = ts
-	}
 	
-	jsdata, err := json.Marshal(getord)
+	var ou, od, sh string
+	var ta, ts int64 
+	// var od []byte
+	
+	q, err := db.Query("select ouid, orderdetail, shipdetail, chargedamount, timestamp from orders where ouid = '" + ouid + "'")
 	if err != nil {
 		return nil, err
 	}
-	//  fmt.Println(string(jsData))
-		return jsData, nil	
+	
+	getord := make(map[string]interface{})
+	
+	for q.Next() {
+		q.Scan(&ou, &od, &sh, &ta, &ts)
+		getord["ouid"] = ou
+		getord["orderdetail"] = od
+		getord["shipdetail"] = sh
+		getord["chargedamount"] = float64(ta/100)
+		getord["timestamp"] = string(time.Unix(ts, 0).Format("02.01.2006 15:04:05"))
+	}
+	
+	var odd ([]map[string]interface{})
+	
+	err = json.Unmarshal([]byte(od), &odd)
+	if err != nil {
+		fmt.Println(err)
+	}
+	
+	getord["orderdetail"] = odd
+	
+	
+	osd := make(map[string]interface{})
+	
+	err = json.Unmarshal([]byte(sh), &osd)
+	if err != nil {
+		fmt.Println(err)
+	}
+	
+	getord["shipdetail"] = osd
+	
+	return getord, nil
+
 }
 
-*/
-/*
-		type Ordata struct {
-			Puid     string `json:"puid"`
-			Pname    string `json:"pname"`
-			Quantity string `json:"quantity"`
-			Price    string `json:"price"`
-			Image    string `json:"image"`
-		}
-		
-		type Orderdata struct {
-			Token string
-			Userid string
-			Ord []Ordata
-		}		
 
-		var Or []Ordata		
-		
-		err = json.Unmarshal(Orderdata, &Or)
-		if err != nil {
-			fmt.Println(err)
-		}
-		
-		var Od Orderdata
-		
-		Od.Token := token
-		Od.Userid := uuid 		
-		Od.Ord := Or
-		*/
+
 
