@@ -1,5 +1,7 @@
+// package for the main Go file
 package main
 
+// import packages
 import (
 	"encoding/json"
 	"fmt"
@@ -20,14 +22,18 @@ import (
 	"github.com/stripe/stripe-go/charge"
 )
 
+// initialise variable to store cookie object
 var cookieHandler = securecookie.New(
 	securecookie.GenerateRandomKey(64),
 	securecookie.GenerateRandomKey(32))
 
+// initialise the router variable
 var router = mux.NewRouter()
 
-func indexPage(w http.ResponseWriter, r *http.Request) {
-	msg := getMsg(w, r, "message")
+
+// function that initializes the entry point of the web app and renders the landing page
+func IndexPage(w http.ResponseWriter, r *http.Request) {
+	msg := GetMsg(w, r, "message")
 	var u = &User{}
 	u.Errors = make(map[string]string)
 	if msg != "" {
@@ -40,38 +46,41 @@ func indexPage(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func login(w http.ResponseWriter, r *http.Request) {
+// Login function to authenticate user and render internal web page
+func Login(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("uname")
 	pass := r.FormValue("password")
 	u := &User{Username: name, Password: pass}
 	redirect := "/"
 	if name != "" && pass != "" {
-		if b, uuid := userExists(u); b == true {
-			setSession(&User{Uuid: uuid}, w)
+		if b, uuid := UserExists(u); b == true {
+			SetSession(&User{Uuid: uuid}, w)
 			if name != "admin" {
 				redirect = "/example"
 			} else {
 				redirect = "/admin"
 			}
 		} else {
-			setMsg(w, "message", "please signup or enter a valid username and password!")
+			SetMsg(w, "message", "please signup or enter a valid username and password!")
 		}
 	} else {
-		setMsg(w, "message", "Username or Password field are empty!")
+		SetMsg(w, "message", "Username or Password field are empty!")
 	}
 	http.Redirect(w, r, redirect, 302)
 }
 
-func logout(w http.ResponseWriter, r *http.Request) {
-	clearSession(w, "session")
+// function Logout is to facilitate end of user's web session and clear the user session cookies
+func Logout(w http.ResponseWriter, r *http.Request) {
+	ClearSession(w, "session")
 	http.Redirect(w, r, "/", 302)
 }
 
-func examplePage(w http.ResponseWriter, r *http.Request) {
-	uuid := getUuid(r)
-	U := getUserFromUuid(uuid)
+// func Examplepage is to retrieve data from the database and send the data object to be rendered after User login
+func ExamplePage(w http.ResponseWriter, r *http.Request) {
+	uuid := GetUuid(r)
+	U := GetUserFromUuid(uuid)
 	if uuid != "" {
-		pdata, err := getProduct()
+		pdata, err := GetProduct()
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -117,30 +126,31 @@ func examplePage(w http.ResponseWriter, r *http.Request) {
 
 		Vd.Prd = Pr
 		
-		// fmt.Println(Vd)
+		fmt.Println(Vd)
 
 		render(w, "internal", Vd)
 
 	} else {
-		setMsg(w, "message", "Please login first!")
+		SetMsg(w, "message", "Please login first!")
 		http.Redirect(w, r, "/", 302)
 	}
 }
 
-func signup(w http.ResponseWriter, r *http.Request) {
+// function Signup is the accept user registration details and save it to the database.
+func Signup(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		u := &User{}
 		u.Errors = make(map[string]string)
-		u.Errors["lname"] = getMsg(w, r, "lname")
-		u.Errors["fname"] = getMsg(w, r, "fname")
-		u.Errors["email"] = getMsg(w, r, "email")
-		u.Errors["username"] = getMsg(w, r, "username")
-		u.Errors["password"] = getMsg(w, r, "password")
-		render(w, "signup", u)
+		u.Errors["lname"] = GetMsg(w, r, "lname")
+		u.Errors["fname"] = GetMsg(w, r, "fname")
+		u.Errors["email"] = GetMsg(w, r, "email")
+		u.Errors["username"] = GetMsg(w, r, "username")
+		u.Errors["password"] = GetMsg(w, r, "password")
+		render(w, "Signup", u)
 	case "POST":
-		if n := checkUser(r.FormValue("userName")); n == true {
-			setMsg(w, "username", "User already exists. Please enter a unique username!")
+		if n := CheckUser(r.FormValue("userName")); n == true {
+			SetMsg(w, "username", "User already exists. Please enter a unique username!")
 			http.Redirect(w, r, "/signup", 302)
 			return
 		}
@@ -156,31 +166,31 @@ func signup(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			e := err.Error()
 			if re := strings.Contains(e, "Lname"); re == true {
-				setMsg(w, "lname", "Please enter a valid Last Name")
+				SetMsg(w, "lname", "Please enter a valid Last Name")
 			}
 			if re := strings.Contains(e, "Email"); re == true {
-				setMsg(w, "email", "Please enter a valid Email Address!")
+				SetMsg(w, "email", "Please enter a valid Email Address!")
 			}
 			if re := strings.Contains(e, "Fname"); re == true {
-				setMsg(w, "fname", "Please enter a valid First Name")
+				SetMsg(w, "fname", "Please enter a valid First Name")
 			}
 			if re := strings.Contains(e, "Username"); re == true {
-				setMsg(w, "username", "Please enter a valid Username!")
+				SetMsg(w, "username", "Please enter a valid Username!")
 			}
 			if re := strings.Contains(e, "Password"); re == true {
-				setMsg(w, "password", "Please enter a Password!")
+				SetMsg(w, "password", "Please enter a Password!")
 			}
 
 		}
 		if r.FormValue("password") != r.FormValue("cpassword") {
-			setMsg(w, "password", "The passwords you entered do not Match!")
+			SetMsg(w, "password", "The passwords you entered do not Match!")
 			http.Redirect(w, r, "/signup", 302)
 			return
 		}
 
 		if result == true {
-			u.Password = encryptPass(u.Password)
-			saveData(u)
+			u.Password = EncryptPass(u.Password)
+			SaveData(u)
 			http.Redirect(w, r, "/", 302)
 			return
 		}
@@ -189,12 +199,14 @@ func signup(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func admin(w http.ResponseWriter, r *http.Request) {
-	uuid := getUuid(r)
-	// u := getUserFromUuid(uuid)
+// function Admin renders the main view after admin user login.
+// order details are retrieved from the database and send as a data object to the client
+func Admin(w http.ResponseWriter, r *http.Request) {
+	uuid := GetUuid(r)
+	// u := GetUserFromUuid(uuid)
 	if uuid != "" {
 		
-		orw, err := getOrders()
+		orw, err := GetOrders()
 		if err!=nil {
 			fmt.Println(err)
 		}
@@ -206,20 +218,21 @@ func admin(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(err)
 		}
 		
-		// fmt.Println(or)
+		fmt.Println(or)
 		
-		render(w, "admin", or)
+		render(w, "Admin", or)
 	} else {
-		setMsg(w, "message", "Please login first!")
+		SetMsg(w, "message", "Please login first!")
 		http.Redirect(w, r, "/", 302)
 	}
 }
 
-func manageproduct(w http.ResponseWriter, r *http.Request) {
-	uuid := getUuid(r)
-	// u := getUserFromUuid(uuid)
+// function ManageProduct provides the functionality to view products and links for carrying out CRUD operations
+func Manageproduct(w http.ResponseWriter, r *http.Request) {
+	uuid := GetUuid(r)
+	// u := GetUserFromUuid(uuid)
 	if uuid != "" {
-		pdata, err := getProduct()
+		pdata, err := GetProduct()
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -233,38 +246,46 @@ func manageproduct(w http.ResponseWriter, r *http.Request) {
 		
 		fmt.Println(pr)
 		
-		render(w, "manageproduct", pr)
+		render(w, "Manageproduct", pr)
 	} else {
-		setMsg(w, "message", "Your session has expired. Please login again!")
+		SetMsg(w, "message", "Your session has expired. Please login again!")
 		http.Redirect(w, r, "/", 302)
 	}
 }	
 
-func addproduct(w http.ResponseWriter, r *http.Request) {
+// function Addproduct renders the add product form, accepts admin users input and saves product data to the database
+func Addproduct(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		uuid := getUuid(r)
+		uuid := GetUuid(r)
 		p := &Product{}
 		p.Errors = make(map[string]string)
-		p.Errors["pname"] = getMsg(w, r, "pname")
-		p.Errors["quantity"] = getMsg(w, r, "quantity")
-		p.Errors["price"] = getMsg(w, r, "price")
-		p.Errors["image"] = getMsg(w, r, "image")
+		p.Errors["pname"] = GetMsg(w, r, "pname")
+		p.Errors["quantity"] = GetMsg(w, r, "quantity")
+		p.Errors["price"] = GetMsg(w, r, "price")
+		p.Errors["image"] = GetMsg(w, r, "image")
+		
+		fmt.Println("Getting to AddProducts...")
+		
 		if uuid != "" {
-			render(w, "addproduct", p)
+			render(w, "Addproduct", p)
 		} else {
-			setMsg(w, "message", "Your Session has expired. Please login again!")
+			SetMsg(w, "message", "Your Session has expired. Please login again!")
 			http.Redirect(w, r, "/", 302)
 		}
 
 	case "POST":
-		if n := checkProduct(r.FormValue("productName")); n == true {
-			setMsg(w, "pname", "Product already exists!")
+	
+		fmt.Println("Post Request sent Sucessfully...")
+	
+		if n := CheckProduct(r.FormValue("productName")); n == true {
+			SetMsg(w, "pname", "Product already exists!")
 			http.Redirect(w, r, "/addproduct", 302)
 			return
 		}
 
 		var pimage string
+
 
 		r.Body = http.MaxBytesReader(w, r.Body, 2*1024*1024)
 		file, header, err := r.FormFile("productimage")
@@ -274,6 +295,10 @@ func addproduct(w http.ResponseWriter, r *http.Request) {
 		} else {
 			pimage = govalidator.ToString(header.Filename)
 		}
+		
+		fmt.Println("Read file Sucessfully...")
+
+		
 
 		p := &Product{
 			Puid:     Puid(),
@@ -287,16 +312,16 @@ func addproduct(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			e := err.Error()
 			if re := strings.Contains(e, "Pname"); re == true {
-				setMsg(w, "pname", "Please enter a valid Product Name")
+				SetMsg(w, "pname", "Please enter a valid Product Name")
 			}
 			if re := strings.Contains(e, "Quantity"); re == true {
-				setMsg(w, "quantity", "Please enter a valid Quantity!")
+				SetMsg(w, "quantity", "Please enter a valid Quantity!")
 			}
 			if re := strings.Contains(e, "Price"); re == true {
-				setMsg(w, "price", "Please enter a valid Price")
+				SetMsg(w, "price", "Please enter a valid Price")
 			}
 			if re := strings.Contains(e, "Image") || pimage == "NULL"; re == true {
-				setMsg(w, "image", "Please enter a valid Image!")
+				SetMsg(w, "image", "Please enter a valid Image!")
 			}
 		}
 
@@ -311,8 +336,13 @@ func addproduct(w http.ResponseWriter, r *http.Request) {
 				// http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
+			
+			fmt.Println("Saved File Image...")
 
-			saveProductData(p)
+			SaveProductData(p)
+			
+			fmt.Println("Saved Product Data...")
+			
 			http.Redirect(w, r, "/admin", 302)
 			return
 		}
@@ -322,42 +352,191 @@ func addproduct(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func vieworder(w http.ResponseWriter, r *http.Request) {
-	uuid := getUuid(r)
-	// u := getUserFromUuid(uuid)
+//
+func Showproduct(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		uuid := GetUuid(r)
+		fmt.Println(uuid)
+		fmt.Println(r.FormValue("prodid"))
+		pid := r.FormValue("prodid")
+		fmt.Println(pid)
+		a := GetProductFromPuid(pid)
+		a.Errors = make(map[string]string)
+		a.Errors["pname"] = GetMsg(w, r, "pname")
+		a.Errors["quantity"] = GetMsg(w, r, "quantity")
+		a.Errors["price"] = GetMsg(w, r, "price")
+		a.Errors["image"] = GetMsg(w, r, "image")
+		fmt.Println(a)
+		if uuid != "" {
+			render(w, "Showproduct", a)
+		} else {
+			SetMsg(w, "message", "Your Session has expired. Please login again!")
+			http.Redirect(w, r, "/", 302)
+		}
+
+	case "POST":
+	
+		fmt.Println("Post Request sent Sucessfully...")
+	
+		if n := CheckProduct(r.FormValue("productName")); n == true {
+			SetMsg(w, "pname", "Product already exists!")
+			http.Redirect(w, r, "/showproduct", 302)
+			return
+		}
+
+		var pimage string
+		pexists := 1
+
+		r.Body = http.MaxBytesReader(w, r.Body, 2*1024*1024)
+		file, header, err := r.FormFile("productimage")
+		if err != nil {
+			// http.Error(w, err.Error(), http.StatusInternalServerError)
+			pimage =  r.FormValue("imgname")
+		} else {
+			pimage = govalidator.ToString(header.Filename)
+			pexists = 2
+		}
+		
+		fmt.Println("Read file Sucessfully...")
+		
+		pu := r.FormValue("prodid")
+		
+		b := GetProductFromPuid(r.FormValue("prodid"))
+		fmt.Println(b.Pname)
+		
+		b.Puid = pu
+
+		a := &Product{
+			Puid:     pu,
+			Pname:    r.FormValue("productName"),
+			Quantity: r.FormValue("quantity"),
+			Price:    r.FormValue("price"),
+			Image:    pimage,
+		}
+		
+		fmt.Println(a)
+		a.Errors = make(map[string]string)
+		
+		result, err := govalidator.ValidateStruct(a)
+		if err != nil {
+			e := err.Error()
+			if re := strings.Contains(e, "Pname"); re == true {
+				// SetMsg(w, "pname", "Please enter a valid Product Name")
+				a.Errors["pname"] = "Please enter a valid Product Name"
+				a.Pname = b.Pname
+			}
+			if re := strings.Contains(e, "Quantity"); re == true {
+				// SetMsg(w, "quantity", "Please enter a valid Quantity!")
+				a.Errors["quantity"] = "Please enter a valid Quantity!"
+				a.Quantity = b.Quantity
+			}
+			if re := strings.Contains(e, "Price"); re == true {
+				// SetMsg(w, "price", "Please enter a valid Price")
+				a.Errors["price"] = "Please enter a valid Price"
+				a.Price = b.Price
+			}
+			if re := strings.Contains(e, "Image") || pimage == "NULL"; re == true {
+				// SetMsg(w, "image", "Please enter a valid Image!")
+				a.Errors["image"] = "Please enter a valid Image!"
+			}
+		}
+		
+		fmt.Println(result)
+		
+		if result == true {
+			if pexists == 2 {
+				fmt.Println(pexists)
+				f, err := os.Create("./files/" + a.Image)
+				if err != nil {
+					// http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+				defer f.Close()
+				if _, err := io.Copy(f, file); err != nil {
+					// http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+			
+				fmt.Println("Saved File Image...")
+			}
+			
+			fmt.Println(a.Price)
+			
+			UpdateProductData(a)
+
+			fmt.Println("Updated Product Data...")
+			
+			http.Redirect(w, r, "/manageproduct", 302)
+			return
+		}
+		
+		// http.Redirect(w, r, "/showproduct", 302)
+		
+		uuid := GetUuid(r)
+		if uuid != "" {
+			render(w, "Showproduct", a)
+		} else {
+			SetMsg(w, "message", "Your Session has expired. Please login again!")
+			http.Redirect(w, r, "/", 302)
+		}
+		
+	}		
+}
+
+
+func Deleteproduct(w http.ResponseWriter, r *http.Request) {
+	uuid := GetUuid(r)
+	if uuid != "" {
+		pid := r.FormValue("proid")
+		fmt.Println(pid)
+		DeleteProductData(pid)
+		fmt.Println("Deleting Product Entries ...")
+		http.Redirect(w, r, "/manageproduct", 302)
+	}
+}
+
+// function Vieworder retrieves from the database the single order data object and renders it on the admin page
+func Vieworder(w http.ResponseWriter, r *http.Request) {
+	uuid := GetUuid(r)
+	// u := GetUserFromUuid(uuid)
 	if uuid != "" {
 		oid := r.FormValue("orderid")
 		fmt.Println(oid)
-		or, err := getOrderFromOuid(oid)
+		or, err := GetOrderFromOuid(oid)
 		if err !=nil {
 			fmt.Println(err)
 		}
 
 		fmt.Println(or)
 		
-		render(w, "vieworder", or)
+		render(w, "Vieworder", or)
 		
 	} else {
-		setMsg(w, "message", "Your session has expired. Please login again!")
+		SetMsg(w, "message", "Your session has expired. Please login again!")
 		http.Redirect(w, r, "/", 302)
 	}
 }
 
-func placeOrder(w http.ResponseWriter, r *http.Request) {
-	uuid := getUuid(r)
+// function Placeorder renders the place order page that displays the order basket and provides the link to make payment
+func PlaceOrder(w http.ResponseWriter, r *http.Request) {
+	uuid := GetUuid(r)
 	pubkey := "pk_test_75gzALA1yuRnl1y7qWdimlov"
 	if uuid != "" {
-		render(w, "placeorder", pubkey)
+		render(w, "Placeorder", pubkey)
 	} else {
-		setMsg(w, "message", "Your session has expired. Please login again!")
+		SetMsg(w, "message", "Your session has expired. Please login again!")
 		http.Redirect(w, r, "/", 302)
 	}
 }
 
-func payment(w http.ResponseWriter, r *http.Request) {
-	uuid := getUuid(r)
+// function Payment provides the functionality to call Stripe's API for payment, collect shipping details, post charge details, 
+// generate the order and save order details to the database 
+// order details contain the product details and shipping details
+func Payment(w http.ResponseWriter, r *http.Request) {
+	uuid := GetUuid(r)
 	if uuid != "" {
-		emaddress := getUserEmailFromUuid(uuid)
+		emaddress := GetUserEmailFromUuid(uuid)
 		
 		stripe.Key = "sk_test_rmp1OSLAWeSj1cAbJ7CvG3Rl"
 		token := r.FormValue("stripeToken")
@@ -434,30 +613,30 @@ func payment(w http.ResponseWriter, r *http.Request) {
 		// fmt.Println(time.Unix(tmst, 0).Format("02.01.2006 15:04:05"))
 		
 		if charge.Status == "succeeded" {
-			err := saveOrderData(O) 
+			err := SaveOrderData(O) 
 			if err != nil {
 				fmt.Println(err)
 			} 
 			
-			orderEmail(r.FormValue("stripeEmail"))
+			OrderEmail(r.FormValue("stripeEmail"))
 			if emaddress != r.FormValue("stripeEmail") {
-				orderEmail(emaddress)
+				OrderEmail(emaddress)
 			} 
 			
 			// fmt.Println(O.Ouid)
-			or, err := getOrderFromOuid(O.Ouid)
+			or, err := GetOrderFromOuid(O.Ouid)
 			if err !=nil {
 					fmt.Println(err)
 			}
 			
-			render(w, "payment", or)
+			render(w, "Payment", or)
 			
 		} else {
-			render(w, "payment", "Transaction Failed. Please Try Again!")
+			render(w, "Payment", "Transaction Failed. Please Try Again!")
 		}
 		
 	} else {
-		setMsg(w, "message", "Your session has expired. Please login again!")
+		SetMsg(w, "message", "Your session has expired. Please login again!")
 		http.Redirect(w, r, "/", 302)
 	}
 }
@@ -474,17 +653,19 @@ func main() {
 	govalidator.SetFieldsRequiredByDefault(true)
 	http.Handle("/initializr/", http.StripPrefix("/initializr/", http.FileServer(http.Dir("initializr"))))
 	http.Handle("/files/", http.StripPrefix("/files/", http.FileServer(http.Dir("files"))))
-	router.HandleFunc("/", indexPage)
-	router.HandleFunc("/login", login).Methods("POST")
-	router.HandleFunc("/logout", logout).Methods("POST")
-	router.HandleFunc("/example", examplePage)
-	router.HandleFunc("/signup", signup).Methods("POST", "GET")
-	router.HandleFunc("/admin", admin)
-	router.HandleFunc("/manageproduct", manageproduct)
-	router.HandleFunc("/addproduct", addproduct).Methods("POST", "GET")
-	router.HandleFunc("/vieworder", vieworder)
-	router.HandleFunc("/placeorder", placeOrder)
-	router.HandleFunc("/payment", payment)
+	router.HandleFunc("/", IndexPage)
+	router.HandleFunc("/login", Login).Methods("POST")
+	router.HandleFunc("/logout", Logout).Methods("POST")
+	router.HandleFunc("/example", ExamplePage)
+	router.HandleFunc("/signup", Signup).Methods("POST", "GET")
+	router.HandleFunc("/admin", Admin)
+	router.HandleFunc("/manageproduct", Manageproduct)
+	router.HandleFunc("/addproduct", Addproduct).Methods("POST", "GET")
+	router.HandleFunc("/showproduct", Showproduct)
+	router.HandleFunc("/deleteproduct", Deleteproduct)	
+	router.HandleFunc("/vieworder", Vieworder)
+	router.HandleFunc("/placeorder", PlaceOrder)
+	router.HandleFunc("/payment", Payment)
 	http.Handle("/", router)
 	// http.ListenAndServe(":8090", nil)
 	go http.ListenAndServe(":8090", http.RedirectHandler("https://127.0.0.1:8091",301))

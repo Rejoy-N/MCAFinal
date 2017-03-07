@@ -1,4 +1,4 @@
-{{define "manageproduct"}}
+{{define "Manageproduct"}}
 {{template "header" .}}
 
 <div class="navbar navbar-inverse navrbar-fixed-top" >
@@ -37,16 +37,18 @@
 							<th>Product Name</th>
 							<th>Product Quantity</th>
 							<th>Product Price</th>
-							<th>Delete / Update</th>
+							<th>Delete </th>
+							<th>Update</th>
 						</tr>	
-						{{range .}}
+						{{range $index, $value := .}}
 						
 						<tr style="border-bottom: 1px solid #ddd;">
 							<td><img src="/files/{{.image}}" style="width:100px;height:100px;"></td>
 							<td>{{.pname}}</td>
 							<td>{{.quantity}}</td>
 							<td>&#8377; {{.price}}</td>
-							<td><button class="btn btn-danger" style="border:none;margin-right:10px;">Delete</button><button class="btn btn-info" style="border:none;">Update</button></td>
+							<td ><form action="/deleteproduct" method="get"><button class="btn btn-danger" name="proid" value="{{.puid}}" style="border:none;margin-right:10px;">Delete </button></form></td>
+							<td ><form onsubmit="save_data(this, {{$index}})" action="/showproduct" method="get"><button class="btn btn-info prodid" id="pid{{$index}}"  value="{{$value.puid}}" style="border:none;margin-right:10px;">Update</button></form></td>
 						</tr>
 						
 						{{end}}	
@@ -59,6 +61,16 @@
 	<div class="col-md-1"></div>
 </div>
 
+<script>	
+
+function save_data(form, rowno) {
+  var input = document.getElementById("pid"+rowno);
+  localStorage.setItem("prid", input.value); 
+  document.getElementById("pid"+rowno).name = 'prodid';
+  // var storedValue = localStorage.getItem("prid"); 
+}	
+			
+</script>
 
 {{template "footer" .}}
 {{end}}

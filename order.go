@@ -1,5 +1,7 @@
+// package Order to manage Order data
 package main
 
+// import packages
 import (
 	"database/sql"
 	"encoding/json"
@@ -12,16 +14,17 @@ import (
 	// "golang.org/x/crypto/bcrypt"
 )
 
+// OrderShipAdd Model for Order Shipping data
 type OrderShipAdd struct {
 		eladdress				string 
 		shaddressname 			string	
 		shaddressline 			string
 		shaddresszip 			string
-		// shaddressstate 
 		shaddresscity			string
 		shaddresscountry 		string
 }
 
+// Order Model
 type Order struct {
 	Ouid     		string            			`valid:"required,uuidv4"`
 	Userid    		string           			`valid:"required,alphanum"`
@@ -36,7 +39,8 @@ type Order struct {
 	Errors   		map[string]string 			`valid:"-"`
 }
 
-func saveOrderData(o *Order) error {
+// function SaveOrder is used to save the Order data to the database
+func SaveOrderData(o *Order) error {
 	var db, _ = sql.Open("sqlite3", "cache/users.sqlite3")
 	defer db.Close()
 	db.Exec("create table if not exists orders (ouid text not null unique, userid text not null, token text not null, orderdetail blob not null, shipdetail blob not null, totalamount text not null, chargedamount integer not null, chargeid text not null, chargestatus text not null, timestamp text, primary key(ouid))")
@@ -47,12 +51,16 @@ func saveOrderData(o *Order) error {
 	return err
 }
 
+// function Ouid is used to generate the OUID string for a new Order
 func Ouid() string {
 	id := uuid.NewV4()
 	return id.String()
 }
 
-func getOrders() ([]byte, error) {
+
+// function GetOrders is used to retrieve from the Orders table of the database the Order UUID, Order Value and Order Timestamp 
+// for all orders in the entire product table and encode it to JSON
+func GetOrders() ([]byte, error) {
 	var db, _ = sql.Open("sqlite3", "cache/users.sqlite3")
 	defer db.Close()
 	var ou string
@@ -82,7 +90,8 @@ func getOrders() ([]byte, error) {
 		return getord, nil
 }
 
-func getOrderFromOuid(ouid string) (map[string]interface{}, error) {
+// function GetOrderFromOuid is used to retrieve from the database the entire order data for the Order UUID table and encode it to JSON
+func GetOrderFromOuid(ouid string) (map[string]interface{}, error) {
 	var db, _ = sql.Open("sqlite3", "cache/users.sqlite3")
 	defer db.Close()
 	
